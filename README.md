@@ -24,13 +24,15 @@ This project consists of:
 - Python 3.x
 - `requests` library
 
-Install dependencies:
+Install Python dependencies:
 ```bash
 pip install requests
-
-### Node JS 
+```
+### Node JS
+Install Python dependencies:
+```bash
 - npm install
-
+```
 Getting Started
  - Delete the Cronos Database within pythonscripts/database file if you want a clean start
  - Run the initialise.py in pythonscripts/database
