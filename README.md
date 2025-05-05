@@ -38,4 +38,3 @@ Getting Started
  - On completion run the removedups.py in pythonscripts/database
  - Now you can run the node js webserver server/ - node server.js 
  - Go to localhost:3000/
-If you don't want to use your own target website you can just run the webserver.
