@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronos Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-base-200">
+
+  <!-- Navbar -->
+  <div class="navbar bg-base-100 shadow-sm px-4">
+    <a class="btn btn-ghost text-lg sm:text-xl">Cronos Search</a>
+  </div>
+
+  <!-- Container -->
+  <main class="max-w-xl mx-auto p-4 space-y-6 ">
+
+    <!-- Search Bar -->
+    <div class="form-control w-full">
+      <div class="flex items-center bg-base-100 input input-bordered rounded-box w-full px-3 py-2">
+        <svg class="w-5 h-5 text-base-content/50 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </g>
+        </svg>
+        <input id="searchInput" type="search" placeholder="Search for .. Lamine Yamal" class="flex-1 bg-transparent outline-none" />
+        <kbd class="kbd kbd-sm ml-2 hidden sm:inline">Enter</kbd>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div id="results" class="space-y-4">
+      <div class="text-center py-10">
+        <h3 class="text-2xl sm:text-4xl font-bold">Ready, Set, Search!</h3>
+        <p class="text-sm opacity-60 mt-1">Find anything instantly.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Result Template -->
+  <template id="search-result-template">
+    <li class="list-row flex flex-wrap items-center justify-between gap-4 p-4 border-t border-base-200">
+      <div class="text-2xl sm:text-4xl font-thin opacity-30 tabular-nums index">00</div>
+      <div class="flex-1 min-w-0">
+        <a href="#" class="result-link font-medium hover:underline block "></a>
+      </div>
+    </li>
+  </template>
+
+  <script>
+
+    // Used various sources to achieve the design - DaisyUI was used for the interface
+    document.getElementById('searchInput').addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+          search();
+        }
+      });
+
+    function decodeHTMLEntities(str) {
+      const txt = document.createElement("textarea");
+      txt.innerHTML = str;
+      return txt.value;
+    }
+
+    function handleSearch(data) {
+      const parsed = JSON.parse(data);
+      const results = parsed["topResults"];
+      const resultsContainer = document.getElementById("results");
+      resultsContainer.innerHTML = "";
+
+      if (!results || results.length === 0) {
+        resultsContainer.innerHTML = `<div class="alert alert-info">No results found.</div>`;
+        return;
+      }
+
+      const ul = document.createElement("ul");
+      ul.className = "list bg-base-100 rounded-box shadow-md";
+
+      const heading = document.createElement("li");
+      heading.className = "p-4 pb-2 text-xs opacity-60 tracking-wide";
+      heading.textContent = "Top Search Results";
+      ul.appendChild(heading);
+
+      const template = document.getElementById("search-result-template");
+
+      results.forEach((item, index) => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector(".index").textContent = item.match_confidence || String(index + 1).padStart(2, '0');
+
+        const link = clone.querySelector(".result-link");
+        link.textContent = decodeHTMLEntities(item.title);
+        link.href = item.url || "#";
+
+        ul.appendChild(clone);
+      });
+
+      resultsContainer.appendChild(ul);
+    }
+
+    function search() {
+      // Push to our Node JS Server to trigger the search python file
+      const query = document.getElementById('searchInput').value;
+      fetch(`/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.text())
+        .then(data => handleSearch(data));
+    }
+
+  </script>
+</body>
+
+</html>
